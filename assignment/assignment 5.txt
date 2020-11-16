@@ -1,0 +1,37 @@
+Arduino - Remotely Open Door via Web with Pattern Password
+
+
+
+*****************************************
+The wifi connection is needed at the place of arduino where it is placed through the wifi shield, I can use the web application to unlock my door.
+*****************************************
+
+COMPONENTS AND SUPPLIES
+1) Arduino UNO & Genuino UNO
+2) PHPoC WiFi Shield 2 for Arduino
+3) PHPoC 4-port Relay Board
+4) Electromagnetic Lock
+
+How it Works
+
+**Open the door
+The password is checked by Arduino.
+If password is correct, user can rotate the door handle on web.
+Web send command to unlock the door to Arduino.
+Arduino control Relay to deactivate EM lock
+
+
+**Wiring
+Stack PHPoC WiFi shield on Arduino
+Stack Relay shield on PHPoC Shield
+Connect EM lock to Relay Shield
+In relay shield, move jumper to set relay works as NC (Normal Closed) mode
+
+
+**How To
+Compile Arduino code and upload to Arduino Uno
+Upload door.php to PHPoC WiFi Shield via this instruction
+Access web page of door: http://192.168.0.234/door.php (you need to replace your PHPoC Shield's IP address)
+Draw the pattern to get the access permission
+Rotate the door handle to open the door
+
