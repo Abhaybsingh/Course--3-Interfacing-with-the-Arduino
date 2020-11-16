@@ -1,0 +1,78 @@
+#include <EEPROM.h>
+
+String command;
+
+void setup() {
+  Serial.begin(9600);
+}
+
+void loop() {
+
+  if (Serial.available() > 0) {
+    command = Serial.readStringUntil('\n');
+// I use this to take what I type and store it as a String
+    String commandRead = command;
+    String commandWrite = command;
+    String sRead = "read";
+    String sWrite = "write";
+    commandRead.remove(4);
+    commandWrite.remove(5);
+/*	Here I create a few String just to be able to compare them later, so if it detects
+    	the string "read", it deletes everything after that in a new String, made only so I can
+    	compare it to the String sRead later in the if, if it's the same, then it enters in the if
+  	made for the "read" command, if it detects "write", then it goes to the "write" if instead.
+*/
+    if (commandRead.equals(sRead)) {
+      String sreadArg1 = command.substring(5); //With this I take the only argument from the "read" command
+
+      int readArg1 = sreadArg1.toInt(); //I turn that argument it into an int
+
+      if (readArg1 > 1023 || readArg1 < 0) 
+      {
+        
+	Serial.println("Sorry, that value is not valid, please input a number between 1 and 1024, both included.");
+        
+	//Here I make sure the number entered it's a valid one
+      }
+      else 
+      { 
+	//If it's a valid one then it comes to this else and reads the address from the EEPROM
+        
+	int valueEEP = EEPROM.read(readArg1); //For the address it uses the argument from the "read"
+        Serial.print("The value in that address is ");
+        Serial.println(valueEEP, DEC);
+
+      }
+    }
+
+    if (commandWrite.equals(sWrite)) 
+    { 
+	//Here is the if for the "write" command
+	      String swriteArgs = command;
+      	      swriteArgs.remove(0, 6); //I remove the "write" part from the string, I no longer need it
+      int swriteSpace = swriteArgs.indexOf(' '); //I find out where the space between the two arguments is
+      String swriteArg1 = swriteArgs.substring(0, swriteSpace); //I use this to get the first argument
+      int writeArg1 = swriteArg1.toInt(); //And then I turn it into an int
+      String swriteArg2 = swriteArgs.substring(swriteSpace + 1); //This is to get the second argument
+      int writeArg2 = swriteArg2.toInt(); //And to turn it into an int too
+
+      if (writeArg1 < 0 || writeArg1 > 1023 || writeArg2 < 0 || writeArg2 > 255) {
+        Serial.println("Sorry, but your arguments aren't valid. The first argument should be a number between 0 and 1023, both included. And the second argument should be a number between 0 and 255, both included.");
+        //This tests if both the two arguments are valid numbers
+      }
+
+      else { //If they are it comes to this else that writes into the EEPROM
+        byte byte1Arg2 = writeArg2 & 0XFF;
+        byte byte2Arg2 = (writeArg2 >> 8) & 0XFF;
+        EEPROM.write(writeArg1, byte1Arg2);
+        EEPROM.write(writeArg1 + 1, byte2Arg2);
+        Serial.println("You wrote the value to that address successfully.");
+        //What I do here is divide the int (that int is the second argument from the "write" command),
+        //that is 2 bytes long, to two separated bytes so I can write them on the EEPROM.
+        //I used a little Endian ordering for this, so the second half of the int is written in the address
+        //(with that address being the first argument), and then the first half of the int written into the
+        //next address.
+      }
+    }
+  }
+}
